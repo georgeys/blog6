@@ -18,3 +18,4 @@ Route::get('test','TestController@index');
 //Route::get('/help', 'TestController@help')->name('help');
 //Route::get('/', 'TestController@home')->name('home');
 Route::get('signup', 'UsersController@create')->name('signup');
+Route::resource('users','UsersController');
