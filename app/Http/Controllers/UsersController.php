@@ -30,6 +30,19 @@ class UsersController extends Controller
         return view('users.index', compact('users'));
     }
 
+
+    /**
+     * @param User $user
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function show(User $user)
+    {
+        $statuses = $user->statuses()
+            ->orderBy('created_at','desc')
+            ->paginate(10);
+        return view('users.show',compact('user','statuses'));
+    }
+
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      * 注册页面
@@ -37,16 +50,6 @@ class UsersController extends Controller
     public function create()
     {
         return view('users.create');
-    }
-
-    /**
-     * @param User $user
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     * 用户详情
-     */
-    public function show(User $user)
-    {
-        return view('users.show',compact('user'));
     }
 
     /**
@@ -150,6 +153,12 @@ class UsersController extends Controller
         return redirect()->route('users.show',$user->id);
     }
 
+    /**
+     * @param User $user
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * 删除用户
+     */
     public function destroy(User $user)
     {
         $this->authorize('destroy', $user);
@@ -157,6 +166,7 @@ class UsersController extends Controller
         session()->flash('succes','成功删除用户');
         return back();
     }
+
 
 
 }

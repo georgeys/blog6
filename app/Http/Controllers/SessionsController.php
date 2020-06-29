@@ -44,7 +44,7 @@ class SessionsController extends Controller
       {
           if(Auth::user()->activated) {
               session()->flash('success', '欢迎回来');
-              $fallback = redirect()->route('users.show', [Auth::user()]);
+              $fallback = route('users.show', [Auth::user()]);
               //重定向器上的 intended 方法将用户重定向到登录之前用户想要访问的 URL，在目标 URL 无效的情况下回退 URI 将会传递给该方法。
               return redirect()->intended($fallback);
           }else{
