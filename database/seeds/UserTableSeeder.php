@@ -19,6 +19,7 @@ class UserTableSeeder extends Seeder
         $user->name = 'yuan';
         $user->email = '1342479179@qq.com';
         $user->password = bcrypt('111111');
+        $user->is_admin = true;
         $user->save();
     }
     //times 和 make 方法是由 FactoryBuilder 类 提供的 API。times 接受一个参数用于指定要创建的模型数量，make 方法调用后将为模型创建一个 集合。
