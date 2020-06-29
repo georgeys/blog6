@@ -10,6 +10,13 @@ use Illuminate\Validation\Rule;
 class UsersController extends Controller
 {
     //
+    public function __construct()
+    {
+        $this->middleware('auth',[
+            'except' => ['show','create','store']
+        ]);
+    }
+
     public function create()
     {
         return view('users.create');
@@ -48,20 +55,28 @@ class UsersController extends Controller
      */
     public function edit(User $user)
     {
+        $this->authorize('update', $user);
         return view('users.edit',compact('user'));
     }
 
     public function update(User $user,Request $request)
     {
+        //该方法接收你想要授权的动作名称以及相应模型实例作为参数，如果动作没有被授权，
+        // authorize 方法将会抛出 Illuminate\Auth\Access\AuthorizationException ，
+        //Laravel默认异常处理器将会将其转化为状态码为403的HTTP响应
+        $this->authorize('update', $user);
         $this->validate($request,[
             'name' => Rule::unique('users')->ignore($user->id),
             'password' => 'required|confirmed|min:6'
         ]);
-        $user->update([
-            'name'      =>  $request->name,
-            'password'  =>  bcrypt($request->password)
-        ]);
-        session()->flash('success',"更新成功");
+        $data = [];
+        $data['name'] = $request->name;
+        if ($request->password) {
+            $data['password'] = bcrypt($request->password);
+        }
+        $user->update($data);
+
+        session()->flash('success',"个人资料更新成功！");
         return redirect()->route('users.show',$user->id);
     }
 
