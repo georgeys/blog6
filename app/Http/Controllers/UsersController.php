@@ -74,6 +74,10 @@ class UsersController extends Controller
         return redirect('/');
     }
 
+    /**
+     * @param $user
+     * 发送邮件
+     */
     protected function sendEmailConfirmationTo($user)
     {
         $view = 'emails.confirm';
