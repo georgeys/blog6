@@ -13,15 +13,34 @@ class UsersController extends Controller
     public function __construct()
     {
         $this->middleware('auth',[
-            'except' => ['show','create','store']
+            'except' => ['show','create','store','index']
         ]);
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * 用户列表页面
+     */
+    public function index()
+    {
+        $users = User::paginate(10);
+        return view('users.index', compact('users'));
+    }
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * 注册页面
+     */
     public function create()
     {
         return view('users.create');
     }
 
+    /**
+     * @param User $user
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * 用户详情
+     */
     public function show(User $user)
     {
         return view('users.show',compact('user'));
@@ -31,6 +50,7 @@ class UsersController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      * @throws \Illuminate\Validation\ValidationException
+     * 注册逻辑
      */
     public function store(Request $request)
     {
@@ -52,6 +72,8 @@ class UsersController extends Controller
     /**
      * @param User $user
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * 修改信息页面
      */
     public function edit(User $user)
     {
@@ -59,6 +81,14 @@ class UsersController extends Controller
         return view('users.edit',compact('user'));
     }
 
+    /**
+     * @param User $user
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     * 更新逻辑
+     */
     public function update(User $user,Request $request)
     {
         //该方法接收你想要授权的动作名称以及相应模型实例作为参数，如果动作没有被授权，
