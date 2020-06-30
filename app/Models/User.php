@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
+
 class User extends Authenticatable
 {
     use Notifiable;
@@ -53,13 +54,74 @@ class User extends Authenticatable
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * 关联微博内容
+     */
     public function statuses()
     {
         return $this->hasMany(Status::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * 来获取粉丝关系列表
+     */
+    public function followers()
+    {
+        return $this->belongsToMany(User::class,'followers',
+        'user_id','follower_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * 来获取用户关注人列表
+     */
+    public function followings()
+    {
+        return $this->belongsToMany(User::class,'followers',
+        'follower_id','user_id'
+        );
+    }
+
+    /**
+     * @param $user_ids
+     */
+    public function follow($user_ids)
+    {
+        if (!is_array($user_ids)){
+            $user_ids = compact('user_ids');
+        }
+        $this->followings()->sync($user_ids,false);
+    }
+
+    /**
+     * @param $user_ids
+     */
+    public function unfollow($user_ids)
+    {
+        if ( ! is_array($user_ids)) {
+            $user_ids = compact('user_ids');
+        }
+        $this->followings()->detach($user_ids);
+    }
+
+    /**
+     * @param $user_id
+     * @return mixed
+     */
+    public function isFollowing($user_id)
+    {
+        return $this->followings->contains($user_id);
+    }
+
+
     public function feed()
     {
-        return $this->statuses()->orderBy('created_at','desc');
+        $user_id  = $this->followings->pluck('id')->toArray();
+        array_push($user_id,$this->id);
+        return Status::whereIn('user_id',$user_id)
+            ->with('user')
+            ->orderBy('created_at','desc');
     }
 }
